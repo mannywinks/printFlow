@@ -33,7 +33,7 @@ function App() {
       )
     }
 
-    
+
      function completeProject(projectId) {
        setProjects(previousProjects => 
         previousProjects.map(project => 
@@ -42,7 +42,16 @@ function App() {
            : project
         )
        )
+     } function editProject(projectId, newName){
+       setProjects(previousProjects =>
+        previousProjects.map(project => 
+          project.id === projectId
+          ? { ...project,name: newName}
+          : project
+     )
+       )
      }
+
   return (
     <div className = "app-layout">
      
@@ -53,6 +62,7 @@ function App() {
         <Dashboard  projects={projects} 
         deleteProject={deleteProject}
         completeProject={completeProject}
+        editProject= {editProject}
         />
       </div>
     

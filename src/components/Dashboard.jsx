@@ -1,11 +1,22 @@
 import StatCard from "./StatCard"
 import { useState } from "react"
 
-export default function Dashboard( {projects , deleteProject, completeProject}) {
+export default function Dashboard( {projects , deleteProject, completeProject, editProject}) {
      
     const [searchTerm, setSearchTerm] = useState("")
     const [statusFilter, setStatusFilter] = useState("All")
+     
 
+    function handleEdit(project ){
+        const newName = window.prompt(
+            "Enter the new project name:",
+            project.name
+        )
+
+        if(newName && newName.trim()) {
+            editProject(project.id,newName.trim())
+        }
+    }
     const filteredProjects = projects.filter(project => {
          const matchesSearch = project.name
     .toLowerCase()
@@ -27,6 +38,7 @@ export default function Dashboard( {projects , deleteProject, completeProject}) 
             {project.status === "Active" && (
                 <button onClick={() => completeProject(project.id)}>Complete</button>
             )}
+            <button onClick={() => handleEdit(project)}>Edit</button>
             <button onClick={() => deleteProject(project.id)}>Delete</button>
         </li>
         
