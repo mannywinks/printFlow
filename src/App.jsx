@@ -2,16 +2,28 @@ import Header from './components/Header'
 import Sidebar from './components/Sidebar'
 import Dashboard from './components/Dashboard'
 import { useState , useEffect } from "react"
-function App() {
+import Clients from "./components/Clients"
 
+function App() {
+  
+   const [clients, setClients] = useState(() => {
+    const savedClients = localStorage.getItem("clients")
+
+    return savedClients ? JSON.parse(savedClients) : []
+   })
+  const [ activePage , setActivePage] = useState("Dashboard")
   const [projects, setProjects] = useState(() => {
     const savedProjects = localStorage.getItem("projects")
-
+    
+    
     return savedProjects ? JSON.parse(savedProjects) : []
   })
   useEffect(() => {
     localStorage.setItem("projects", JSON.stringify(projects))
   }, [projects])
+  useEffect(() => {
+    localStorage.setItem("clients", JSON.stringify(clients))
+  }, [clients])
 
 
    function addProject(projectName, clientName) {
@@ -52,18 +64,57 @@ function App() {
        )
      }
 
+     function addClient(clientName, clientEmail) {
+       const newClient = {
+        id: Date.now(),
+        name: clientName,
+        email: clientEmail
+       }
+         setClients(previousClients => [
+        ...previousClients, newClient
+       ])
+     }
+      function editClient(clientId, newName) {
+        setClients(previousClients => 
+          previousClients.map(client =>
+            client.id === clientId 
+            ? {...client, name : newName} : client
+          )
+        )
+      }
+     function deleteClient(clientId) {
+      setClients(previousClients => 
+        previousClients.filter(client => client.id !== clientId )
+      )
+     }
+
   return (
     <div className = "app-layout">
      
-      <Sidebar />
+      <Sidebar 
+         activePage = {activePage}
+         setActivePage= {setActivePage}/>
 
       <div className="content-area">
         <Header addProject={addProject} />
-        <Dashboard  projects={projects} 
+        {activePage === "Dashboard" ? (
+        <Dashboard  
+        projects={projects} 
         deleteProject={deleteProject}
         completeProject={completeProject}
         editProject= {editProject}
         />
+        ) : activePage ==="Clients" ? (
+          <Clients 
+          clients= {clients}
+          addClient={addClient}
+          deleteClient = {deleteClient}
+          editClient= {editClient}/> ) : (
+          <main className='dashboard'>
+            <h1>{activePage}</h1>
+            <p>This page willl be built next.</p>
+          </main>
+        )}
       </div>
     
     </div>
