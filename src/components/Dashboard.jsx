@@ -1,7 +1,7 @@
 import StatCard from "./StatCard"
 import { useState } from "react"
 
-export default function Dashboard( {projects , deleteProject, completeProject, editProject}) {
+export default function Dashboard( {projects , deleteProject, completeProject, editProject, activeProjects, completedProjects, pendingQuotes, approvedQuoteValue}) {
      
     const [searchTerm, setSearchTerm] = useState("")
     const [statusFilter, setStatusFilter] = useState("All")
@@ -49,10 +49,12 @@ export default function Dashboard( {projects , deleteProject, completeProject, e
         <p>Track projects ,clients and revenue</p>
         <section className="stats-grid">
         <StatCard label = "Active projects"
-         value={projects.filter(project => project.status === "Active").length} />
+         value={activeProjects} />
         <StatCard label = "completed projects" 
-        value={projects.filter(project => project.status === "Completed").length} />
-        <StatCard label = "Revenue this month" value={"$486,500"}/>
+        value={completedProjects} />
+        <StatCard label = "Pending quotes"
+         value={pendingQuotes} />
+        <StatCard label = "Revenue this month" value={approvedQuoteValue}/>
         </section>
         <section className= "projects-section">
             <h2>Recent Projects</h2>
