@@ -23,24 +23,24 @@ export default function Clients ({clients,addClient,deleteClient, editClient}) {
 
         )
         if(newName && newName.trim()) {
-            editClient(client.id, newName.trim())
+            editClient(client, newName.trim())
         }
     }
     
      const clientElements = clients.map(client => (
-        <li key ={ client.id}>
-            <div classname = "client-details">
+        <li key ={ client._id}>
+            <div className = "client-details">
                 <strong>{client.name}</strong>
                 <small>{client.email}</small>
                 <button onClick ={() => handleEdit(client)}>Edit</button>
-                <button onClick ={() => deleteClient(client.id)}>
+                <button onClick ={() => deleteClient(client._id)}>
                     Delete
                 </button>
             </div>
         </li>
      ))
     return (
-        <main classname = "dashboard">
+        <main className = "dashboard">
             <h1> Clients</h1>
             <p>Manage your clients records</p>
             <form onSubmit = {handleSubmit} className = "client-form">

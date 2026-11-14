@@ -14,7 +14,7 @@ export default function Dashboard( {projects , deleteProject, completeProject, e
         )
 
         if(newName && newName.trim()) {
-            editProject(project.id,newName.trim())
+            editProject(project._id,newName.trim())
         }
     }
     const filteredProjects = projects.filter(project => {
@@ -29,17 +29,17 @@ export default function Dashboard( {projects , deleteProject, completeProject, e
 
     const projectElements = filteredProjects.map((project, index) => (
         
-        <li key ={project.id ?? `${project}--${index}`}>
+        <li key ={project._id ?? `${project}--${index}`}>
             <div className = "project-details">
                 <strong>{project.name}</strong>
                 <small>{project.client}</small>
             </div>
             <span className = "project-status">{project.status}</span>
             {project.status === "Active" && (
-                <button onClick={() => completeProject(project.id)}>Complete</button>
+                <button onClick={() => completeProject(project._id)}>Complete</button>
             )}
             <button onClick={() => handleEdit(project)}>Edit</button>
-            <button onClick={() => deleteProject(project.id)}>Delete</button>
+            <button onClick={() => deleteProject(project._id)}>Delete</button>
         </li>
         
     ))

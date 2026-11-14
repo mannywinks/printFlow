@@ -8,22 +8,11 @@ import Settings from "./components/Settings"
 
 function App() {
   
-   const [ quotes, setQuotes] = useState(() => {
-     const savedQuotes = localStorage.getItem("quotes")
-
-     return savedQuotes ? JSON.parse(savedQuotes) : []
-   })
-   const [clients, setClients] = useState(() => {
-    const savedClients = localStorage.getItem("clients")
-
-    return savedClients ? JSON.parse(savedClients) : []
-   })
+   const [ quotes, setQuotes] = useState(() => {[]});
+   const [clients, setClients] = useState(() => {[]});
  
  
-  const [projects, setProjects] = useState(() => {
-    const savedProjects = localStorage.getItem("projects")
-    return savedProjects ? JSON.parse(savedProjects) : []
-  })
+  const [projects, setProjects] = useState(() => {[]});
   const [settings, setSettings] = useState(() => {
     const savedSettings = localStorage.getItem("settings")
 
@@ -60,125 +49,388 @@ function App() {
     JSON.stringify(settings)
   )
 }, [settings])
+  
   useEffect(() => {
-    localStorage.setItem("projects", JSON.stringify(projects))
-  }, [projects])
-  useEffect(() => {
-    localStorage.setItem("clients", JSON.stringify(clients))
-  }, [clients])
-  useEffect(() => {
-    localStorage.setItem("quotes", JSON.stringify(quotes))
+    async function fetchProjects() {
+      try {
+        const response = await fetch("http://localhost:5000/api/projects")
+        const data = await response.json();
 
-  }, [quotes])
-
-
-   function addProject(projectName, clientName) {
-
-       const newProject = {
-        id: Date.now(),
-        name: projectName,
-        client: clientName || "Not assigned",
-        status: "Active"
-       }
-    setProjects(prevProjects => [...prevProjects, newProject])
-
-   }
-
-
-    function deleteProject(projectId){
-      setProjects(previousProjects => 
-        previousProjects.filter(project => project.id !== projectId)
-      )
+        if( response.ok) {
+          setProjects(data.projects);
+        }
+      } catch (error) {
+        console.log("Error fetching projects:", error);
+      }
     }
 
+    fetchProjects();
+  }, []);
 
-     function completeProject(projectId) {
-       setProjects(previousProjects => 
-        previousProjects.map(project => 
-          project.id === projectId ?
-          {...project, status: "Completed"}
-           : project
-        )
-       )
-     } function editProject(projectId, newName){
-       setProjects(previousProjects =>
-        previousProjects.map(project => 
-          project.id === projectId
-          ? { ...project,name: newName}
-          : project
-     )
-       )
-     }
+useEffect(() => {
+  async function fetchClients() {
+    try {
+      const response = await fetch("http://localhost:5000/api/clients");
+      const data = await response.json();
 
-     function addClient(clientName, clientEmail) {
-       const newClient = {
-        id: Date.now(),
+      if (response.ok) {
+        setClients(data.clients);
+      }
+    } catch (error) {
+      console.log("Error fetching clients:", error);
+    }
+  }
+
+  fetchClients();
+}, []);
+
+   
+useEffect(() => {
+  async function fetchQuotes() {
+    try {
+      const response = await fetch("http://localhost:5000/api/quotes");
+      const data = await response.json();
+
+      if (response.ok) {
+        setQuotes(data.quotes);
+      }
+    } catch (error) {
+      console.log("Error fetching quotes:", error);
+    }
+  }
+
+  fetchQuotes();
+}, []);
+
+
+
+   async function addProject(projectName, clientName) {
+
+       const newProject = {
+        name: projectName,
+        client: clientName || "",
+        status: "Active"
+       }
+
+              const response = await fetch("http://localhost:5000/api/projects", {
+                method: "POST",
+                headers: {
+                  "Content-Type" : "application/json"
+                },
+                body: JSON.stringify(newProject)
+              });
+          
+            const data = await response.json();
+
+        if (response.ok) {
+          setProjects(prevProjects => [...prevProjects, data.project]);
+       } else {
+          console.log(data.message);
+}
+
+}    
+
+
+    async function deleteProject(projectId){
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/projects/${projectId}`,
+          {
+            method : "DELETE"
+          }
+        );
+
+        const data = await response.json();
+
+        if(response.ok){
+           setProjects(previousProjects => 
+           previousProjects.filter(project => project._id !== projectId)
+           );
+  
+      console.log(data.message);
+    } else {
+      console.log(data.message);
+    }
+  } catch (error) {
+    console.log("Error deleting project:", error.message);
+  }
+}
+
+
+   async function completeProject(projectId) {
+    try {
+      const response = await fetch (`http://localhost:5000/api/projects/${projectId}`, 
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type" : "application/json"
+          },
+          body: JSON.stringify({
+            status: "Completed"
+          })
+        });
+        const data = await response.json();
+
+        if(response.ok) {
+          setProjects(previousProjects => 
+            previousProjects.map(project => 
+              project._id === projectId
+              ? data.project
+              : project
+            )
+          );
+        } else {
+          console.log(data.message);
+        }
+    } catch (error) {
+      console.log("Error completing project:", error.message);
+    }
+  }
+     
+     async function editProject(projectId, newName){
+     try {
+      const response = await fetch(`http://localhost:5000/api/projects/${projectId}`, 
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type" : "application/json"
+          },
+          body: JSON.stringify({
+            name : newName
+          })
+        }
+      );
+      const data = await response.json();
+
+      if(response.ok) {
+        setProjects(previousProjects =>
+          previousProjects.map(project =>
+            project._id === projectId
+            ? data.project
+             : project
+          )
+        );
+      } else {
+        console.log(data.message);
+      }
+    } catch (error) {
+      console.log("Error updating project:", error);
+    }
+  }
+       
+
+    async function addClient(clientName, clientEmail) {
+      try { 
+      const newClient = {
         name: clientName,
         email: clientEmail
-       }
-         setClients(previousClients => [
-        ...previousClients, newClient
-       ])
-     }
-      function editClient(clientId, newName) {
-        setClients(previousClients => 
-          previousClients.map(client =>
-            client.id === clientId 
-            ? {...client, name : newName} : client
-          )
-        )
-      }
-     function deleteClient(clientId) {
-      setClients(previousClients => 
-        previousClients.filter(client => client.id !== clientId )
-      )
-     }
+       };
 
-     function addQuote(clientName, amount) {
-       const newQuote = {
-          id: Date.now(),
+       const response = await fetch("http://localhost:5000/api/clients", {
+        method : "POST",
+        headers : {
+          "Content-Type" : "application/json"
+        },
+        body: JSON.stringify(newClient)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setClients(previousClients => [
+          ...previousClients, data.client
+        ]);
+      } else {
+        console.log(data.message);
+      }
+      }  catch (error) {
+        console.log("Error adding client:", error.message);
+      } 
+    } 
+     async  function editClient(clientId, newName) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/clients/${clientId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type" :"application/json"
+          },
+          body : JSON.stringify({
+            name: newName
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setClients(previousClients => 
+            previousClients.map(client => 
+              client._id === clientId ? data.client : client
+            )
+          );
+        }else {
+          console.log(data.message);
+        }
+      } catch (error) {
+        console.log("Error updating client:", error.message);
+      }
+    }
+       
+
+
+     async function deleteClient(clientId) {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/clients/${clientId}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setClients(previousClients =>
+        previousClients.filter(client => client._id !== clientId)
+      );
+
+      console.log(data.message);
+    } else {
+      console.log(data.message);
+    }
+  } catch (error) {
+    console.log("Error deleting client:", error);
+  }
+}
+
+    async function addQuote(clientName, amount) {
+      try {
+        const newQuote = {
           client: clientName,
           amount: Number(amount),
           status: "Pending"
+        };
+
+        const response = await fetch ("http://localhost:5000/api/quotes", {
+          method: "POST",
+          headers: {
+            "Content-Type" : "application/json"
+          },
+          body: JSON.stringify(newQuote)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setQuotes(previousQuotes => [
+            ...previousQuotes , data.quote
+          ]);
+        } else {
+          console.log(data.message);
         }
-        setQuotes(previousQuotes => [
-          ...previousQuotes , newQuote
-        ])
+
+      } catch (error) {
+        console.log("Error adding quote:", error.message);
+      }
 
        }
 
-       function updateQuoteStatus(quoteId, newStatus) {
-        setQuotes(previousQuotes =>
-          previousQuotes.map(quote =>
-            quote.id === quoteId 
-            ? { ...quote, status: newStatus } 
-            : quote 
-          )
+async function updateQuoteStatus(quoteId, newStatus) {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/quotes/${quoteId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          status: newStatus
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setQuotes(previousQuotes =>
+        previousQuotes.map(quote =>
+          quote._id === quoteId ? data.quote : quote
         )
-       }
+      );
+    } else {
+      console.log(data.message);
+    }
 
-       function editQuote(quoteId, updatedClient, updatedAmount) {
-         setQuotes(previousQuotes => 
-          previousQuotes.map(quote =>
-            quote.id === quoteId 
-            ? {
-              ...quote,
-              client: updatedClient, 
-              amount: Number(updatedAmount)
-            }
-            : quote
-          )
-         )
-       }
+  } catch (error) {
+    console.log("Error updating quote status:", error);
+  }
+}
 
-       function deleteQuote(quoteId) {
-        setQuotes(previousQuotes => 
-          previousQuotes.filter(quote => quote.id !== quoteId)
+
+       
+async function editQuote(quoteId, updatedClient, updatedAmount) {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/quotes/${quoteId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          client: updatedClient,
+          amount: Number(updatedAmount)
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setQuotes(previousQuotes =>
+        previousQuotes.map(quote =>
+          quote._id === quoteId ? data.quote : quote
         )
-       }
-     
+      );
+    } else {
+      console.log(data.message);
+    }
+
+  } catch (error) {
+    console.log("Error updating quote:", error);
+  }
+}
+
+      
+async function deleteQuote(quoteId) {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/quotes/${quoteId}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setQuotes(previousQuotes =>
+        previousQuotes.filter(quote => quote._id !== quoteId)
+      );
+
+      console.log(data.message);
+    } else {
+      console.log(data.message);
+    }
+
+  } catch (error) {
+    console.log("Error deleting quote:", error);
+  }
+}
+
 
   return (
+
     <div className = "app-layout">
 
       <button
@@ -198,7 +450,7 @@ function App() {
 
       <div className="content-area">
         <Header addProject={addProject} />
-        {activePage === "Dashboard" ? (
+        {activePage === "Dashboard" || activePage === "Projects" ? (
         <Dashboard  
         projects={projects} 
         deleteProject={deleteProject}
@@ -235,7 +487,9 @@ function App() {
       </div>
     
     </div>
-  ) 
+  );
 }
+       
 
-export default App
+
+export default App;

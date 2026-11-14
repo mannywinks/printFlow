@@ -44,7 +44,7 @@ export default function Quotes({ quotes, addQuote, deleteQuote, updateQuoteStatu
             Number(newAmount) > 0 
 
         ) {
-            editQuote(quote.id, newClient.trim(), newAmount)
+            editQuote(quote._id, newClient.trim(), newAmount)
         }
     }
     
@@ -60,21 +60,21 @@ export default function Quotes({ quotes, addQuote, deleteQuote, updateQuoteStatu
 }
       
     const quoteElements = quotes.map(quote => (
-        <li key ={quote.id}>
+        <li key ={quote._id}>
             <div className="quote-details">
                 <strong>{quote.client}</strong>
                 <span>${quote.amount.toLocaleString()}</span>
                 <small>{quote.status}</small>
-                 <button onClick={() => handleEdit(quote)}>Edit</button>
-                <button onClick = {() =>  handleDelete(quote.id)}>Delete</button>
+                 <button  type = "button" onClick={() => handleEdit(quote)}>Edit</button>
+                <button type="button" onClick = {() =>  handleDelete(quote._id)}>Delete</button>
                 <select 
                   value= {quote.status}
                   onChange={(event) =>
-                    updateQuoteStatus(quote.id, event.target.value)}
+                    updateQuoteStatus(quote._id, event.target.value)}
                     >
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
                     </select>
                   
             </div>
@@ -102,7 +102,7 @@ export default function Quotes({ quotes, addQuote, deleteQuote, updateQuoteStatu
               onChange = {(event) => setAmount(event.target.value)}
               min="1"/>
               <button type="submit"> Create Quote</button>
-             
+             </form>
               
                 {quotes.length === 0 ? (
                     <p>No quotes yet. Create your first quote.</p>
@@ -111,7 +111,6 @@ export default function Quotes({ quotes, addQuote, deleteQuote, updateQuoteStatu
                         {quoteElements}
               </ul>
                 )}
-            </form>
 
         </main>
     )
