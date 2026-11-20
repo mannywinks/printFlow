@@ -6,13 +6,20 @@ import Clients from "./components/Clients"
 import Quotes from  './components/Quotes'
 import Settings from "./components/Settings"
 
+
+
 function App() {
   
-   const [ quotes, setQuotes] = useState(() => {[]});
-   const [clients, setClients] = useState(() => {[]});
+
+   const API_URL = import.meta.env.VITE_API_URL;
+   
+   const [ quotes, setQuotes] = useState([]);
+   const [clients, setClients] = useState([]);
  
+
+  
  
-  const [projects, setProjects] = useState(() => {[]});
+  const [projects, setProjects] = useState([]);
   const [settings, setSettings] = useState(() => {
     const savedSettings = localStorage.getItem("settings")
 
@@ -53,7 +60,7 @@ function App() {
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const response = await fetch("http://localhost:5000/api/projects")
+        const response = await fetch(`${API_URL}/api/projects`);
         const data = await response.json();
 
         if( response.ok) {
@@ -65,12 +72,12 @@ function App() {
     }
 
     fetchProjects();
-  }, []);
+  }, [API_URL]);
 
 useEffect(() => {
   async function fetchClients() {
     try {
-      const response = await fetch("http://localhost:5000/api/clients");
+      const response = await fetch(`${API_URL}/api/clients`);
       const data = await response.json();
 
       if (response.ok) {
@@ -82,13 +89,13 @@ useEffect(() => {
   }
 
   fetchClients();
-}, []);
+}, [API_URL]);
 
    
 useEffect(() => {
   async function fetchQuotes() {
     try {
-      const response = await fetch("http://localhost:5000/api/quotes");
+      const response = await fetch(`${API_URL}/api/quotes`);
       const data = await response.json();
 
       if (response.ok) {
@@ -100,7 +107,7 @@ useEffect(() => {
   }
 
   fetchQuotes();
-}, []);
+}, [API_URL]);
 
 
 
@@ -112,7 +119,7 @@ useEffect(() => {
         status: "Active"
        }
 
-              const response = await fetch("http://localhost:5000/api/projects", {
+              const response = await fetch(`${API_URL}/api/projects`, {
                 method: "POST",
                 headers: {
                   "Content-Type" : "application/json"
@@ -134,7 +141,7 @@ useEffect(() => {
     async function deleteProject(projectId){
       try {
         const response = await fetch(
-          `http://localhost:5000/api/projects/${projectId}`,
+          `${API_URL}/api/projects/${projectId}`,
           {
             method : "DELETE"
           }
@@ -189,7 +196,7 @@ useEffect(() => {
      
      async function editProject(projectId, newName){
      try {
-      const response = await fetch(`http://localhost:5000/api/projects/${projectId}`, 
+      const response = await fetch(`${API_URL}/api/projects/${projectId}`, 
         {
           method: "PUT",
           headers: {
@@ -226,7 +233,7 @@ useEffect(() => {
         email: clientEmail
        };
 
-       const response = await fetch("http://localhost:5000/api/clients", {
+       const response = await fetch(`${API_URL}/api/clients`, {
         method : "POST",
         headers : {
           "Content-Type" : "application/json"
@@ -249,7 +256,7 @@ useEffect(() => {
     } 
      async  function editClient(clientId, newName) {
       try {
-        const response = await fetch(`http://localhost:5000/api/clients/${clientId}`, {
+        const response = await fetch(`${API_URL}/api/clients/${clientId}`, {
           method: "PUT",
           headers: {
             "Content-Type" :"application/json"
@@ -280,7 +287,7 @@ useEffect(() => {
      async function deleteClient(clientId) {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/clients/${clientId}`,
+      `${API_URL}/api/clients/${clientId}`,
       {
         method: "DELETE"
       }
@@ -310,7 +317,7 @@ useEffect(() => {
           status: "Pending"
         };
 
-        const response = await fetch ("http://localhost:5000/api/quotes", {
+        const response = await fetch (`${API_URL}/api/quotes`, {
           method: "POST",
           headers: {
             "Content-Type" : "application/json"
@@ -337,7 +344,7 @@ useEffect(() => {
 async function updateQuoteStatus(quoteId, newStatus) {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/quotes/${quoteId}`,
+      `${API_URL}/api/quotes/${quoteId}`,
       {
         method: "PUT",
         headers: {
@@ -371,7 +378,7 @@ async function updateQuoteStatus(quoteId, newStatus) {
 async function editQuote(quoteId, updatedClient, updatedAmount) {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/quotes/${quoteId}`,
+      `${API_URL}/api/quotes/${quoteId}`,
       {
         method: "PUT",
         headers: {
@@ -405,7 +412,7 @@ async function editQuote(quoteId, updatedClient, updatedAmount) {
 async function deleteQuote(quoteId) {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/quotes/${quoteId}`,
+      `${API_URL}/api/quotes/${quoteId}`,
       {
         method: "DELETE"
       }
